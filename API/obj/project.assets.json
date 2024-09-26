@@ -2945,6 +2945,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Microsoft.EntityFrameworkCore >= 8.0.8",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.8",
       "Microsoft.EntityFrameworkCore.Sqlite >= 8.0.8",
       "Swashbuckle.AspNetCore >= 6.4.0"
@@ -2956,11 +2957,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Usuario\\Documents\\Semestre 9°\\Servicios Web\\Proyecto\\ProyectoAgularNet\\API\\API.csproj",
+      "projectUniqueName": "c:\\Users\\Usuario\\Documents\\Semestre 9°\\Servicios Web\\Proyecto\\ProyectoAgularNet\\API\\API.csproj",
       "projectName": "API",
-      "projectPath": "C:\\Users\\Usuario\\Documents\\Semestre 9°\\Servicios Web\\Proyecto\\ProyectoAgularNet\\API\\API.csproj",
+      "projectPath": "c:\\Users\\Usuario\\Documents\\Semestre 9°\\Servicios Web\\Proyecto\\ProyectoAgularNet\\API\\API.csproj",
       "packagesPath": "C:\\Users\\Usuario\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Usuario\\Documents\\Semestre 9°\\Servicios Web\\Proyecto\\ProyectoAgularNet\\API\\obj\\",
+      "outputPath": "c:\\Users\\Usuario\\Documents\\Semestre 9°\\Servicios Web\\Proyecto\\ProyectoAgularNet\\API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Usuario\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -2992,6 +2993,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "Microsoft.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[8.0.8, )"
+          },
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",
