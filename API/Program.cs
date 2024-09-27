@@ -16,12 +16,17 @@ builder.Services.AddCors();
 var app = builder.Build();
 
 //Configure the HTTP request pipeline
-app.UseCors((cors) => cors
+app.UseRouting();
+
+app.UseCors(cors => cors
     .AllowAnyHeader()
     .AllowAnyMethod()
+    .AllowCredentials()
     .WithOrigins(
-        "http://localhost:4200",
+        "http://localhost:4200", 
         "https://localhost:4200"));
+
+app.UseAuthorization();
 
 app.MapControllers();
 app.Run();
