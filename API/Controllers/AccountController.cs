@@ -3,15 +3,16 @@ using System.Text;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-public class AccountController(DataContext context) : BaseApiController
+public class AccountController(DataContext context, ITokenService tokenService) : BaseApiController
 {
     [HttpPost("register")]
-    public async Task<ActionResult<AppUser>> RegisterAsync(RegisterRequest request)
+    public async Task<ActionResult<UserResponse>> RegisterAsync(RegisterRequest request)
     {
         if (await UserExistsAsync(request.Username))
         {
@@ -26,11 +27,15 @@ public class AccountController(DataContext context) : BaseApiController
             PasswordSalt = hmac.Key
         };
 
-        return user;
+         return new UserResponse
+        {
+            Username = user.UserName,
+            Token = tokenService.CreateToken(user)
+        };
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUser>> LoginAsync(LoginRequest request)
+    public async Task<ActionResult<UserResponse>> LoginAsync(LoginRequest request)
     {
         var user = await context.Users.FirstOrDefaultAsync(x =>
             x.UserName.ToLower() == request.Username.ToLower());
@@ -46,7 +51,11 @@ public class AccountController(DataContext context) : BaseApiController
             if (computeHash[i] != user.PasswordHash[i])
                 return Unauthorized("Invalid username or password");
 
-        return user;
+         return new UserResponse
+        {
+            Username = user.UserName,
+            Token = tokenService.CreateToken(user)
+        };
     }
 
     private async Task<bool> UserExistsAsync(string username) =>
