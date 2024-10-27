@@ -1,3 +1,4 @@
+namespace API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.Entities;
@@ -5,7 +6,6 @@ using API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace API.Controllers;
 
 [Authorize]
 public class UsersController : BaseApiController
@@ -38,8 +38,5 @@ public class UsersController : BaseApiController
     }
 
     [HttpGet("{name}")]
-    public ActionResult<string> Ready(string name)
-    {
-        return $"Hi {name}";
-    }
+    public ActionResult<string> Ready(string name) => $"Hi {name}";
 }
