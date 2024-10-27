@@ -1,7 +1,7 @@
 namespace API.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using API.Entities;
+using API.DataEntities;
 using API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -10,33 +10,42 @@ using Microsoft.AspNetCore.Http.HttpResults;
 [Authorize]
 public class UsersController : BaseApiController
 {
-    private readonly DataContext _context;
+    private readonly IUserRepository _repository;
 
-    public UsersController(DataContext context)
+    public UsersController(IUserRepository repository)
     {
-        _context = context;
+        _repository = repository;
     }
 
-    [AllowAnonymous]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AppUser>>> GetUsersAsync()
+    public async Task<ActionResult<IEnumerable<AppUser>>> GetAllAsync()
     {
-        var users = await _context.Users.ToListAsync();
+        var users = await _repository.GetAllAsync();
 
-        return users;
+        return Ok(users);
     }
 
-    [Authorize]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<AppUser>> GetUsersByIdAsync(int id)
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _repository.GetByIdAsync(id);
 
-        if (user == null) return NotFound();
+        if (user == null)
+        {
+            return NotFound();
+        }
 
         return Ok(user);
     }
 
-    [HttpGet("{name}")]
-    public ActionResult<string> Ready(string name) => $"Hi {name}";
+    [HttpGet("{username}")] // api/users/Calamardo
+    public async Task<ActionResult<AppUser>> GetByUsernameAsync(string username)
+    {
+        var user = await _repository.GetByUsernameAsync(username);
+        if (user == null)
+        {
+            return NotFound();
+        }
+        return user;
+    }
 }

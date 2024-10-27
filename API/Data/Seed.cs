@@ -2,7 +2,7 @@ namespace API.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using API.Entities;
+using API.DataEntities;
 using Microsoft.EntityFrameworkCore;
 
 public class Seed
