@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.DataEntities;
 using API.Data;
+using API.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -18,7 +19,7 @@ public class UsersController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AppUser>>> GetAllAsync()
+    public async Task<ActionResult<IEnumerable<MemberResponse>>> GetAllAsync()
     {
         var users = await _repository.GetAllAsync();
 
@@ -26,7 +27,7 @@ public class UsersController : BaseApiController
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ActionResult<AppUser>> GetUsersByIdAsync(int id)
+    public async Task<ActionResult<MemberResponse>> GetByIdAsync(int id)
     {
         var user = await _repository.GetByIdAsync(id);
 
@@ -39,7 +40,7 @@ public class UsersController : BaseApiController
     }
 
     [HttpGet("{username}")] // api/users/Calamardo
-    public async Task<ActionResult<AppUser>> GetByUsernameAsync(string username)
+    public async Task<ActionResult<MemberResponse>> GetByUsernameAsync(string username)
     {
         var user = await _repository.GetByUsernameAsync(username);
         if (user == null)
