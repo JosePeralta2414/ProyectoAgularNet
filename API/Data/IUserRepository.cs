@@ -1,5 +1,6 @@
 namespace API.Data;
 using API.DataEntities;
+using API.DTOs;
 
 public interface IUserRepository
 {
@@ -8,4 +9,6 @@ public interface IUserRepository
     Task<IEnumerable<AppUser>> GetAllAsync();
     Task<AppUser?> GetByIdAsync(int id);
     Task<AppUser?> GetByUsernameAsync(string username);
+    Task<IEnumerable<MemberResponse>> GetMembersAsync();
+    Task<MemberResponse?> GetMemberAsync(string username);
 }
