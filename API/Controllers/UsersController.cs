@@ -1,9 +1,12 @@
 namespace API.Controllers;
-using System.Security.Claims;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.Data;
+using API.DataEntities;
 using API.DTOs;
+using API.Extensions;
+using API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -13,11 +16,13 @@ using Microsoft.AspNetCore.Http.HttpResults;
 public class UsersController : BaseApiController
 {
     private readonly IUserRepository _repository;
+    private readonly IPhotoService _photoService;
     private readonly IMapper _mapper;
 
-    public UsersController(IUserRepository repository, IMapper mapper)
+     public UsersController(IUserRepository repository, IPhotoService photoService, IMapper mapper)
     {
         _repository = repository;
+        _photoService = photoService;
          _mapper = mapper;
     }
 
@@ -28,7 +33,7 @@ public class UsersController : BaseApiController
         return Ok(members);
     }
 
-    [HttpGet("{username}")] // api/users/Calamardo
+    [HttpGet("{username}", Name = "GetByUsername")] // api/users/Calamardo
     public async Task<ActionResult<MemberResponse>> GetByUsernameAsync(string username)
     {
         var member = await _repository.GetMemberAsync(username);
@@ -43,14 +48,7 @@ public class UsersController : BaseApiController
     [HttpPut]
     public async Task<ActionResult> UpdateUser(MemberUpdateRequest request)
     {
-        var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (username == null)
-        {
-            return BadRequest("No username found in token");
-        }
-
-        var user = await _repository.GetByUsernameAsync(username);
+        var user = await _repository.GetByUsernameAsync(User.GetUserName());
 
         if (user == null)
         {
@@ -66,5 +64,39 @@ public class UsersController : BaseApiController
         }
 
         return BadRequest("Update user failed!");
+    }
+
+    [HttpPost("photo")]
+    public async Task<ActionResult<PhotoResponse>> AddPhoto(IFormFile file)
+    {
+        var user = await _repository.GetByUsernameAsync(User.GetUserName());
+
+        if (user == null)
+        {
+            return BadRequest("Cannot update user");
+        }
+
+        var result = await _photoService.AddPhotoAsync(file);
+
+        if (result.Error != null)
+        {
+            return BadRequest(result.Error.Message);
+        }
+
+        var photo = new Photo
+        {
+            Url = result.SecureUrl.AbsoluteUri,
+            PublicId = result.PublicId
+        };
+
+        user.Photos.Add(photo);
+
+        if (await _repository.SaveAllAsync())
+        {
+            return CreatedAtAction("GetByUsername",
+                new { username = user.UserName }, _mapper.Map<PhotoResponse>(photo));
+        }
+
+        return BadRequest("Problem adding the photo");
     }
 }
