@@ -8,7 +8,6 @@ using API.Extensions;
 using API.Helpers;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-
 public class MessagesController
     (IMessageRepository messageRepository,
     IUserRepository userRepository,
@@ -60,5 +59,12 @@ public class MessagesController
         var messages = await messageRepository.GetForUserAsync(messageParams);
         Response.AddPaginationHeader(messages);
         return messages;
+    }
+
+    [HttpGet("thread/{username}")]
+    public async Task<ActionResult<IEnumerable<MessageResponse>>> GetMessageThread(string username)
+    {
+        var currentUsername = User.GetUserName();
+        return Ok(await messageRepository.GetThreadAsync(currentUsername, username));
     }
 }
