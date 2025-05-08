@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using API.Data;
 using API.DataEntities;
 using API.DTOs;
+using API.Helpers;
 using API.Extensions;
 using API.Services;
 using AutoMapper;
@@ -27,9 +28,11 @@ public class UsersController : BaseApiController
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MemberResponse>>> GetAllAsync()
+    public async Task<ActionResult<IEnumerable<MemberResponse>>> GetAllAsync([FromQuery] UserParams userParams)
     {
-        var members = await _repository.GetMembersAsync();
+        var members = await _repository.GetMembersAsync(userParams);
+
+        Response.AddPaginationHeader(members);
         return Ok(members);
     }
 
