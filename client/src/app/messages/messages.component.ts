@@ -31,7 +31,7 @@ export class MessagesComponent implements OnInit {
     // if (this.container === "outbox") return `/members/${message.recipientUsername}`;
     // else return `/members/${message.senderUsername}`;
   
-    return this.container === "outbox"
+    return this.container === "Outbox"
       ? `/members/${message.recipientUsername}`
       : `/members/${message.senderUsername}`;
     }
