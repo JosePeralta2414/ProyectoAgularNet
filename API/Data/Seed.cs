@@ -2,28 +2,32 @@ namespace API.Data;
 using System.Security.Cryptography;
 using System.Text.Json;
 using API.DataEntities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 public class Seed
 {
-    public static async Task SeedUsersAsync(DataContext context)
+    public static async Task SeedUsersAsync(UserManager<AppUser>
+    userManager)
     {
-        if (await context.Users.AnyAsync())
+        if (await userManager.Users.AnyAsync())
         {
             return;
         }
         var userData = await File.ReadAllTextAsync("Data/UserSeedData.json");
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        var users = JsonSerializer.Deserialize<List<AppUser>>(userData, options);
+        var users = JsonSerializer.Deserialize<List<AppUser>>(userData, ReadOptions);
         if (users == null)
         {
             return;
         }
         foreach (var user in users)
         {
-            using var hmac = new HMACSHA512();
-            context.Users.Add(user);
+            await userManager.CreateAsync(user, "Pa$$w0rd");
         }
-        await context.SaveChangesAsync();
-    }
+        }
+        
+        private static readonly JsonSerializerOptions ReadOptions = new()
+        {
+            AllowTrailingCommas = true
+        };
 }

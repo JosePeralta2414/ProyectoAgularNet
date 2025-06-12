@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore;
 
 public class DataContext(DbContextOptions options) : 
 IdentityDbContext<
-        AppUser, AppRole, int, IdentityUserClaim<int>, AppUserRole,
-        IdentityUserLogin<int>, IdentityRoleClaim<int>,
-IdentityUserToken<int>>(options)
+        AppUser, AppRole, int,
+        IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
+ IdentityRoleClaim<int>, IdentityUserToken<int>>(options)
 {
     public DbSet<UserLike> Likes { get; set; }
     public DbSet<Message> Messages { get; set; }
