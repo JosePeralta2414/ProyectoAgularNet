@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250319131914_MessageEntityAdded")]
+    [Migration("20250524002021_MessageGroupsAdded")]
     partial class MessageEntityAdded
     {
         /// <inheritdoc />

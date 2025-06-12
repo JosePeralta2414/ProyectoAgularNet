@@ -13,8 +13,7 @@ using Microsoft.EntityFrameworkCore;
 public class LikesRepository(DataContext context, IMapper mapper) : ILikesRepository
 {
     public void AddLike(UserLike like) => context.Likes.Add(like);
-    public void RemoveLike(UserLike like) => context.Likes.Remove(like);
-
+    
     public async Task<IEnumerable<int>> GetCurrentUserLikeIdsAsync(int currentUSerId)
         => await context.Likes
             .Where(l => l.SourceUserId == currentUSerId)
@@ -54,5 +53,6 @@ public class LikesRepository(DataContext context, IMapper mapper) : ILikesReposi
         return await PagedList<MemberResponse>.CreateAsync(query, likesParams.PageNumber, likesParams.PageSize);
     }
 
+    public void RemoveLike(UserLike userLike) => context.Likes.Remove(userLike);
     public async Task<bool> SaveChangesAsync() => await context.SaveChangesAsync() > 0;
 }
