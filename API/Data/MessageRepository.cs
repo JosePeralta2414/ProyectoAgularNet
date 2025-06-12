@@ -44,6 +44,12 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
             .CreateAsync(messages, messageParams.PageNumber, messageParams.PageSize);
     }
 
+    public async Task<MessageGroup?> GetMessageGroupForConnectionAsync(string connectionId)
+        => await context.MessageGroups
+            .Include(x => x.Connections)
+            .Where(x => x.Connections.Any(c => c.ConnectionId == connectionId))
+            .FirstOrDefaultAsync();
+
     public async Task<MessageGroup?> GetMessageGroupAsync(string groupName)
         => await context.MessageGroups
             .Include(g => g.Connections)
@@ -52,13 +58,12 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
     public async Task<IEnumerable<MessageResponse>> GetThreadAsync(string currentUsername, string recipientUsername)
     {
         var messages = await context.Messages
-            .Include(m => m.Sender).ThenInclude(p => p.Photos)
-            .Include(m => m.Recipient).ThenInclude(p => p.Photos)
             .Where(m =>
                 (m.RecipientUsername == currentUsername && !m.RecipientDeleted && m.SenderUsername == recipientUsername) ||
                 (m.RecipientUsername == recipientUsername && !m.SenderDeleted && m.SenderUsername == currentUsername)
             )
             .OrderBy(m => m.MessageSent)
+            .ProjectTo<MessageResponse>(mapper.ConfigurationProvider)
             .ToListAsync();
 
         var unreadMessages = messages
@@ -71,7 +76,7 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
             await context.SaveChangesAsync();
         }
 
-        return mapper.Map<IEnumerable<MessageResponse>>(messages);
+        return messages;
     }
 
     public void Remove(Message message) => context.Messages.Remove(message);

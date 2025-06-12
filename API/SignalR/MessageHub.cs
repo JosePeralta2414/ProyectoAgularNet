@@ -26,8 +26,11 @@ public class MessageHub(
         var groupName = GetGroupName(Context.User.GetUserName(), otherUser);
         await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         await AddToMessageGroup(groupName);
+        var messageGroup = await AddToMessageGroupAsync(groupName);
+
+        await Clients.Group(groupName).SendAsync("UpdatedGroup", messageGroup);
         var messages = await messagesRepository.GetThreadAsync(Context.User.GetUserName(), otherUser!);
-        await Clients.Group(groupName).SendAsync("ReceiveMessageThread", messages);
+        await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
