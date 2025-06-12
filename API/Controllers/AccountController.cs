@@ -1,7 +1,5 @@
 namespace API.Controllers;
-using System.Security.Cryptography;
 using System.Text;
-using API.Data;
 using API.DTOs;
 using API.DataEntities;
 using API.Services;
@@ -29,7 +27,7 @@ public class AccountController(DataContext context, ITokenService tokenService,I
         return new UserResponse
         {
             Username = user.UserName,
-            Token = tokenService.CreateToken(user),
+            Token = await tokenService.CreateToken(user),
             KnownAs = user.KnownAs,
             Gender = user.Gender
         };
@@ -52,7 +50,7 @@ public class AccountController(DataContext context, ITokenService tokenService,I
         {
             Username = user.UserName,
             KnownAs = user.KnownAs,
-            Token = tokenService.CreateToken(user),
+            Token = await tokenService.CreateToken(user),
             Gender = user.Gender,
             PhotoUrl = user.Photos.FirstOrDefault(p => p.IsMain)?.Url
         };
