@@ -43,23 +43,12 @@ public class AccountController(DataContext context, ITokenService tokenService,I
     {
         var user = await context.Users
             .Include(x => x.Photos)
-            .FirstOrDefaultAsync(x => x.UserName.ToLower() == request.Username.ToLower());
+            .FirstOrDefaultAsync(x => x.UserName.ToLowerInvariant() == request.Username.ToLowerInvariant());
 
-        if (user == null)
+        if (user == null || user.UserName == null)
+        {
             return Unauthorized("Invalid username or password");
-
-
-        user.UserName = request.Username.ToLowerInvariant();
-        // user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password));
-        // user.PasswordSalt = hmac.Key;
-
-        // for (var i = 0; i < computeHash.Length; i++)More actions
-        // {
-        //     if (computeHash[i] != user.PasswordHash[i])
-        //     {
-        //         return Unauthorized("Invalid username or password");
-        //     }
-        // }
+        }
 
          return new UserResponse
         {
@@ -72,6 +61,5 @@ public class AccountController(DataContext context, ITokenService tokenService,I
     }
 
     private async Task<bool> UserExistsAsync(string username) =>
-        await context.Users.AnyAsync(u => u.UserName.ToLower() == 
-        username.ToLower());
+        await context.Users.AnyAsync(u => u.NormalizedUserName == username.ToUpper());
 }
