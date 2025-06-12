@@ -5,12 +5,14 @@ using API.Data;
 using API.DataEntities;
 using API.DTOs;
 using API.Extensions;
+using API.UnitOfWork;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 
 public class MessageHub(
     IMessageRepository messagesRepository,
     IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
     IMapper mapper,
     IHubContext<PresenceHub> presenceHub) : Hub
 {
@@ -29,7 +31,12 @@ public class MessageHub(
         var messageGroup = await AddToMessageGroupAsync(groupName);
 
         await Clients.Group(groupName).SendAsync("UpdatedGroup", messageGroup);
-        var messages = await messagesRepository.GetThreadAsync(Context.User.GetUserName(), otherUser!);
+        var messages = await unitOfWork.MessageRepository.GetThreadAsync(Context.User.GetUserName(), otherUser!);More actions
+
+        if (unitOfWork.HasChanges())
+        {
+            await unitOfWork.Complete();
+        }
         await Clients.Caller.SendAsync("ReceiveMessageThread", messages);
     }
 
