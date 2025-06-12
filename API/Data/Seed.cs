@@ -7,8 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class Seed
 {
-    public static async Task SeedUsersAsync(UserManager<AppUser>
-    userManager)
+    public static async Task SeedUsersAsync(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
     {
         if (await userManager.Users.AnyAsync())
         {
@@ -20,9 +19,35 @@ public class Seed
         {
             return;
         }
+
+        var roles = new List<AppRole>
+        {
+            new() { Name = "Admin" },
+            new() { Name = "Member" },
+            new() { Name = "Moderator" }
+        };
+
+        foreach (var role in roles)
+        {
+            await roleManager.CreateAsync(role);
+        }
+
+        var admin = new AppUser
+        {
+            UserName = "admin",
+            KnownAs = "Admin",
+            Gender = string.Empty,
+            City = string.Empty,
+            Country = string.Empty
+        };
+
+        await userManager.CreateAsync(admin, "Pa$$w0rd");
+        await userManager.AddToRolesAsync(admin, ["Admin", "Moderator"]);
+
         foreach (var user in users)
         {
             await userManager.CreateAsync(user, "Pa$$w0rd");
+            await userManager.AddToRoleAsync(user, "Member");
         }
         }
         
