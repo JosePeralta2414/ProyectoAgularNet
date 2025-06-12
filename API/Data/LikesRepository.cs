@@ -54,5 +54,4 @@ public class LikesRepository(DataContext context, IMapper mapper) : ILikesReposi
     }
 
     public void RemoveLike(UserLike userLike) => context.Likes.Remove(userLike);
-    public async Task<bool> SaveChangesAsync() => await context.SaveChangesAsync() > 0;
 }

@@ -8,7 +8,6 @@ public interface IUserRepository
     public Task<AppUser?> GetByIdAsync(int id);
     public Task<AppUser?> GetByUsernameAsync(string username);
     public Task<MemberResponse?> GetMemberAsync(string username);
-    public Task<PagedList<MemberResponse>> GetMembersAsync(UserParams userParams);More actions
-    public Task<bool> SaveAllAsync();
+    public Task<PagedList<MemberResponse>> GetMembersAsync(UserParams userParams);
     public void Update(AppUser user);
 }
