@@ -1,15 +1,15 @@
+namespace API.Controllers;
 using System.Security.Cryptography;
 using System.Text;
 using API.Data;
 using API.DTOs;
-using API.Entities;
+using API.DataEntities;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
-namespace API.Controllers;
-
-public class AccountController(DataContext context, ITokenService tokenService) : BaseApiController
+public class AccountController(DataContext context, ITokenService tokenService,IMapper mapper) : BaseApiController
 {
     [HttpPost("register")]
     public async Task<ActionResult<UserResponse>> RegisterAsync(RegisterRequest request)
@@ -20,25 +20,30 @@ public class AccountController(DataContext context, ITokenService tokenService) 
         }
 
         using var hmac = new HMACSHA512();
-        var user = new AppUser
-        {
-            UserName = request.Username,
-            PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password)),
-            PasswordSalt = hmac.Key
-        };
+        var user = mapper.Map<AppUser>(request);
+        user.UserName = request.Username;
+        user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password));
+        user.PasswordSalt = hmac.Key;
+        
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
 
-         return new UserResponse
+        return new UserResponse
         {
             Username = user.UserName,
-            Token = tokenService.CreateToken(user)
+            Token = tokenService.CreateToken(user),
+            KnownAs = user.KnownAs,
+            Gender = user.Gender
         };
+        
     }
 
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> LoginAsync(LoginRequest request)
     {
-        var user = await context.Users.FirstOrDefaultAsync(x =>
-            x.UserName.ToLower() == request.Username.ToLower());
+        var user = await context.Users
+            .Include(x => x.Photos)
+            .FirstOrDefaultAsync(x => x.UserName.ToLower() == request.Username.ToLower());
 
         if (user == null)
             return Unauthorized("Invalid username or password");
@@ -47,14 +52,17 @@ public class AccountController(DataContext context, ITokenService tokenService) 
         using var hmac = new HMACSHA512(user.PasswordSalt);
         var computeHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password));
 
-        for (int i = 0; i < computeHash.Length; i++)
+        for (var i = 0; i < computeHash.Length; i++)
             if (computeHash[i] != user.PasswordHash[i])
                 return Unauthorized("Invalid username or password");
 
          return new UserResponse
         {
             Username = user.UserName,
-            Token = tokenService.CreateToken(user)
+            KnownAs = user.KnownAs,
+            Token = tokenService.CreateToken(user),
+            Gender = user.Gender,
+            PhotoUrl = user.Photos.FirstOrDefault(p => p.IsMain)?.Url
         };
     }
 
